@@ -1,38 +1,29 @@
-import http from "http";
-import fs from "fs";
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
 const PORT = 8080;
 
-const server = http.createServer((req, res) => {
-  let filePath;
-
-  switch (req.url) {
-    case "/":
-      filePath = "index.html";
-      break;
-    case "/about":
-      filePath = "about.html";
-      break;
-    case "/contact":
-      filePath = "contact.html";
-      break;
-    default:
-      filePath = "error.html";
-      res.statusCode = 404;
-      break;
-  }
-
-  fs.readFile(filePath, (err, content) => {
-    if (err) {
-      res.writeHead(500);
-      res.end("Server Error: " + err.code);
-    } else {
-      res.setHeader("Content-Type", "text/html");
-      res.end(content);
-    }
-  });
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
-server.listen(PORT, () => {
+app.get("/about", (req, res) => {
+  res.sendFile(path.join(__dirname, "about.html"));
+});
+
+app.get("/contact", (req, res) => {
+  res.sendFile(path.join(__dirname, "contact.html"));
+});
+
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname, "error.html"));
+});
+
+app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}/`);
 });
